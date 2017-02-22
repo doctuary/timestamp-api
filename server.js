@@ -1,3 +1,4 @@
+var moment = require('moment');
 var express = require('express');
 var app = express();
 
@@ -8,8 +9,18 @@ app.get('/', function(req, res) {
 });
 
 app.get('/:time', function(req, res) {
-    console.log(req.params);
-    res.send('hello time!');
+    var timestamp = { unixTimestamp: null, naturalLanguageTimestamp: null };
+    var timeParameter = req.params.time;
+    if (Number(parseFloat(timeParameter)) == timeParameter) {
+        timestamp.unixTimestamp = timeParameter;
+        timestamp.naturalLanguageTimestamp = new Date(Number(timeParameter * 1000)).toISOString();
+    }
+    var momentTime = moment(timeParameter);    
+    if (momentTime.isValid()) {
+        timestamp.unixTimestamp = momentTime.unix();
+        timestamp.naturalLanguageTimestamp = momentTime.toISOString();
+    };    
+    res.send(timestamp);
 })
 
 app.listen(app.get('port'), function() {
